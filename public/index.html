@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Employee Search</h1>
+    <input type="text" id="employeeId" placeholder="Enter Employee ID">
+    <button onclick="searchEmployee()">Search</button>
+    <div id="employeeDetails"></div>
+    <script>
+        
+
+        async function searchEmployee() {
+            const id = document.getElementById('employeeId').value;
+            console.log(id)
+            const response = await fetch(`/employee/${id}`);
+            const data = await response.json();
+            if (response.ok && id<=data.length) {
+                document.getElementById('employeeDetails').innerHTML = `
+                    <p>Name: <input type="text" id="employeeName" value="${data[id-1].name}"></p>
+                    <p>Role: <input type="text" id="employeeRole" value="${data[id-1].role}"></p>
+                    <p>Date of Birth: <input type="text" id="employeeDoj" value="${data[id-1].doj}"></p>
+                    <form ><button onclick="updateEmployee(${id})">Update</button></form>
+                   <form> <button onclick="deleteEmployee(${id})">Delete</button></form>
+                `;
+            } else {
+                document.getElementById('employeeDetails').innerHTML = `<p>Employee not Found</p>`;
+            }
+        }
+        document.addEventListener('DOMContentLoaded', updateEmployee);
+
+        async function updateEmployee(id) {
+
+            const name = document.getElementById('employeeName').value;
+            const role = document.getElementById('employeeRole').value;
+            const doj = document.getElementById('employeeDoj').value;
+
+            const response = await fetch(`/update`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, role, doj,id })
+            });
+
+            if (response.ok) {
+alert("Successfully Updated")  
+          } else {
+                const error = await response.text();
+alert("Something Went Wrong..")            }
+
+}
+async function deleteEmployee(id) {
+    
+            const response = await fetch(`/delete/:${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                alert("Successfully Deleted")  
+            } else {
+                const error = await response.text();
+                alert(error)  
+            }
+        }
+
+    </script>
+</body>
+</html>
